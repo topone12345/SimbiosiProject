@@ -281,5 +281,58 @@ namespace SimbiosiClientLib.Entities.Tags.Tests
             _collection.Remove(new SubscribeTag("<.119"));
             Assert.IsTrue(true);
         }
+
+        [TestMethod()]
+        public void Check1()
+        {
+            _collection = new TagsCollection();
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Add(new SubscribeTag("<.ERROR"));
+            _collection.Add(new SubscribeTag("<.TYPE"));
+            _collection.Add(new SubscribeTag("<.119"));
+
+            Assert.IsTrue(_collection.Match(new MessageTag("TRANSACTIONS.DONE.SUCCESFULLY.55421")));
+        }
+
+        [TestMethod()]
+        public void Check2()
+        {
+            _collection = new TagsCollection();
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Add(new SubscribeTag("<.ERROR"));
+            _collection.Add(new SubscribeTag("<.TYPE"));
+            _collection.Add(new SubscribeTag("<.119"));
+
+            Assert.IsTrue(_collection.Match(new MessageTag("TRANSACTIONS.PPPP.SUCCESFULLY.119")));
+        }
+        [TestMethod()]
+        public void Check3()
+        {
+            _collection = new TagsCollection();
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Add(new SubscribeTag("<.ERROR"));
+            _collection.Add(new SubscribeTag("<.TYPE"));
+            _collection.Add(new SubscribeTag("<.119"));
+
+            Assert.IsFalse(_collection.Match(new MessageTag("TRANSACTIONS.DONE.MAJOR.230")));
+        }
     }
 }

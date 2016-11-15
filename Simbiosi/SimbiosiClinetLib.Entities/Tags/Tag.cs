@@ -23,8 +23,8 @@ namespace SimbiosiClientLib.Entities.Tags
 
         #region Constants
 
-        protected const char WILDCARD_JOLLY = '*';
-        protected const char WILDCARD_STARTWITH = '>';
+        protected internal const char WILDCARD_JOLLY = '*';
+        protected internal const char WILDCARD_STARTWITH = '>';
         protected internal const char WILDCARD_ENDWITH = '<';
         protected const string RESERVED_USE_TOKEN = "$";
         protected static List<string> WILDCARDS = new List<string> {"*", "<", ">"};

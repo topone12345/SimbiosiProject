@@ -112,11 +112,62 @@ namespace SimbiosiClientLib.Entities.Tags
         public void Clear()
         {
             _innerList.Clear();
+            _table.NestedTable.Clear();
+            _table.Tags.Clear();
         }
 
         public bool Contains(SubscribeTag item)
         {
             return _innerList.Contains(item);
+        }
+
+        public bool Match(MessageTag item)
+        {
+            return Match(item, 0, _table, false);
+        }
+
+
+        private static bool Match(MessageTag item, int i, TagsCollectionBucket bucket, bool searchtagsOnPath)
+        {
+            
+            if(i==item.TokensCount || searchtagsOnPath)
+                if (MatchInList(item, bucket.Tags)) return true;
+            
+            if(i==0 && bucket.NestedTable.ContainsKey(Tag.WILDCARD_ENDWITH.ToString()))
+            {
+                if (MatchInList(item, bucket.NestedTable[Tag.WILDCARD_ENDWITH.ToString()].Tags)) return true;
+            }
+
+            if (i<item.TokensCount)
+            {
+                var value = item[i];
+                
+
+                if(bucket.NestedTable.ContainsKey(value))
+                    if (Match(item, ++i, bucket.NestedTable[value], false)) return true;
+
+                if (bucket.NestedTable.ContainsKey(Tag.WILDCARD_JOLLY.ToString()))
+                    if (Match(item, ++i, bucket.NestedTable[Tag.WILDCARD_JOLLY.ToString()], true)) return true;
+
+                if (bucket.NestedTable.ContainsKey(Tag.WILDCARD_STARTWITH.ToString()))
+                    if (Match(item, ++i, bucket.NestedTable[Tag.WILDCARD_STARTWITH.ToString()], true)) return true;
+            }
+
+
+            return false;
+
+
+        }
+
+        private static bool MatchInList(MessageTag item, HashSet<SubscribeTag> tags)
+        {
+            foreach (var subscribeTag in tags)
+            {
+                if (subscribeTag.MatchWith(item))
+                    return true;
+            }
+
+            return false;
         }
 
         public void CopyTo(SubscribeTag[] array, int arrayIndex)
