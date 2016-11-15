@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimbiosiClientLib.Entities.Tags
 {
@@ -59,7 +56,7 @@ namespace SimbiosiClientLib.Entities.Tags
         /// <value>
         /// <c>true</c> if this instance is an end with subject; otherwise, <c>false</c>.
         /// </value>
-        public bool IsAnEndWithSubject => LastToken.Equals(WILDCARD_ENDWITH.ToString());
+        public bool IsAnEndWithSubject => FirstToken.Equals(WILDCARD_ENDWITH.ToString());
         #endregion
 
         #region Methods
@@ -84,36 +81,50 @@ namespace SimbiosiClientLib.Entities.Tags
             int subscribeIndex = 0;
             for (int i = 0; i < messageTag.TokensCount; ++i)
             {
-                if (i == messageTag.TokensCount && subscribeIndex==TokensCount)
-                    return true;
+         
 
-                if (subscribeIndex == TokensCount)
-                    return false;
+        
 
 
                 if (i == 0 && IsAnEndWithSubject)
                 {
-                    ++i;
+                    bool found = false;
+                    ++subscribeIndex;
                     for (int k = 0; k < messageTag.TokensCount; ++k)
                     {
-                        if (messageTag[k] == this[i])
+                        if (messageTag[k] == this[subscribeIndex])
                         {
-                            subscribeIndex = k + 1;
-                            continue;
-                        }
+                            found = true;
+                            i = k;
 
-                        return false;
+                            if (i == messageTag.TokensCount-1)
+                                return true; //found on the last
+
+                            break;
+                        }
                     }
+
+                    if(!found)
+                        return false;
                 }
 
 
 
-                if (this[i] == WILDCARD_STARTWITH.ToString())
+                if (this[subscribeIndex] == WILDCARD_STARTWITH.ToString())
                     return true;
 
-                if (messageTag[i] == this[i] || this[i] == WILDCARD_JOLLY.ToString())
+                if (messageTag[i] == this[subscribeIndex] || this[subscribeIndex] == WILDCARD_JOLLY.ToString())
                 {
                     ++subscribeIndex;
+
+                    if (i == messageTag.TokensCount-1 && subscribeIndex == TokensCount)
+                        return true;
+
+
+                    if (subscribeIndex == TokensCount)
+                        return false;
+
+
                     continue;
                 }
 
@@ -122,7 +133,9 @@ namespace SimbiosiClientLib.Entities.Tags
 
 
             return false;
+
         }
+
         #endregion
     }
 }
