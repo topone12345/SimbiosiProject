@@ -11,6 +11,8 @@ namespace SimbiosiClientLib.Entities.Tags.Tests
     [TestClass()]
     public class SubscribeTagTests
     {
+        private TagsCollection _collection;
+
         [TestMethod()]
         [ExpectedException(typeof( ArgumentException))]
         public void CreateWrongSubscribeTag1()
@@ -234,6 +236,50 @@ namespace SimbiosiClientLib.Entities.Tags.Tests
             var s = new SubscribeTag("<.MERDA");
             var m = new MessageTag("PIPPO");
             Assert.IsFalse(s.MatchWith(m));
+        }
+
+        [TestMethod()]
+        public void CreateTagClass()
+        {
+            _collection = new TagsCollection();
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Add(new SubscribeTag("<.ERROR"));
+            _collection.Add(new SubscribeTag("<.TYPE"));
+            _collection.Add(new SubscribeTag("<.119"));
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod()]
+        public void RemoveAll()
+        {
+            _collection = new TagsCollection();
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Add(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Add(new SubscribeTag("<.ERROR"));
+            _collection.Add(new SubscribeTag("<.TYPE"));
+            _collection.Add(new SubscribeTag("<.119"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.DONE.SUCCESFULLY.*"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.DONE.UNSUCCESFULLY.*"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.INPROGRESS.SUCCESFULLY.*"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.*"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.INPROGRESS.UNSUCCESFULLY.ERROR"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.*"));
+            _collection.Remove(new SubscribeTag("TRANSACTIONS.TYPE2.>"));
+            _collection.Remove(new SubscribeTag("<.ERROR"));
+            _collection.Remove(new SubscribeTag("<.TYPE"));
+            _collection.Remove(new SubscribeTag("<.119"));
+            Assert.IsTrue(true);
         }
     }
 }
