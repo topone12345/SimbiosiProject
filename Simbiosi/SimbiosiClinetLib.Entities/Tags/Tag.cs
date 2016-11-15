@@ -145,6 +145,31 @@ namespace SimbiosiClientLib.Entities.Tags
         /// </value>
         public bool IsReservedUseTag => this[0].Equals(RESERVED_USE_TOKEN);
 
+
+        /// <summary>
+        /// Gets the tokens count.
+        /// </summary>
+        /// <value>
+        /// The tokens count.
+        /// </value>
+        public int TokensCount => _tokens.Count;
+
+
+        /// <summary>
+        /// Gets the last token.
+        /// </summary>
+        /// <value>
+        /// The last token.
+        /// </value>
+        public string LastToken => _tokens[_tokens.Count - 1];
+
+        /// <summary>
+        /// Gets the first token.
+        /// </summary>
+        /// <value>
+        /// The first token.
+        /// </value>
+        public string FirstToken => _tokens[0];
         #endregion
 
         #region Equality
