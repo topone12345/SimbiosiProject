@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimbiosiClientLib.Entities.Tags
 {
     public class TagsCollection : ICollection<SubscribeTag>
     {
         #region fields
-        private TagsCollectionBucket _table;
-        private List<SubscribeTag> _innerList;
+        private readonly TagsCollectionBucket _table;
+        private readonly HashSet<SubscribeTag> _innerList;
         #endregion
 
         #region .Ctor
@@ -22,7 +18,7 @@ namespace SimbiosiClientLib.Entities.Tags
         public TagsCollection()
         {
             _table = new TagsCollectionBucket();
-            _innerList = new List<SubscribeTag>();
+            _innerList = new HashSet<SubscribeTag>();
         }
         #endregion
 
@@ -39,6 +35,9 @@ namespace SimbiosiClientLib.Entities.Tags
 
         public void Add(SubscribeTag item)
         {
+            if(Contains(item))
+                return;
+
             _innerList.Add(item);
             AddToTable(item,0,_table);
         }
