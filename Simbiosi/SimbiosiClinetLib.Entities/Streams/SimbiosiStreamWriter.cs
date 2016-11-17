@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
@@ -32,6 +33,7 @@ namespace SimbiosiClientLib.Entities.Streams
         private const int LargeByteBufferSize = 1024;
 
         private byte[] _asciiBuffer;
+        private readonly CultureInfo _decimalCultureInfo = new CultureInfo("en-US");
 
         protected SimbiosiStreamWriter()
         {
@@ -334,6 +336,21 @@ namespace SimbiosiClientLib.Entities.Streams
             OutStream.Write(_buffer, 0, 8);
         }
 
+
+
+        
+        /// <summary>
+        /// Writes the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public virtual void Write(decimal value)
+        {
+            //Use string serialization instead of binary searlization on 96 bit plus sign and power for
+            //Cross-language compliance reasons (for java usage, javascript usage, python usage, plsql and  etc. etc.)
+            Write(value.ToString(_decimalCultureInfo));
+        }
+
+
         // Writes a length-prefixed string to this stream in the BinaryWriter's
         // current Encoding. This method first writes the length of the string as 
         // a four-byte unsigned integer, and then writes that many characters 
@@ -425,6 +442,22 @@ namespace SimbiosiClientLib.Entities.Streams
 
             Encoding.ASCII.GetBytes(value, 0, value.Length, _asciiBuffer, 0);
             OutStream.Write(_asciiBuffer, 0, len);
+        }
+
+        /// <summary>
+        /// Writes the date time.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public virtual void WriteDateTime(DateTime value)
+        {
+            /*
+            DateTime values:
+            2009 - 06 - 15T13: 45:30(DateTimeKind.Local)-- > 2009 - 06 - 15T13: 45:30.0000000 - 07:00
+            2009 - 06 - 15T13: 45:30(DateTimeKind.Utc)-- > 2009 - 06 - 15T13: 45:30.0000000Z
+            2009 - 06 - 15T13: 45:30(DateTimeKind.Unspecified)-- > 2009 - 06 - 15T13: 45:30.0000000
+            DateTimeOffset values:
+            2009 - 06 - 15T13: 45:30 - 07:00-- > 2009 - 06 - 15T13: 45:30.0000000 - 07:00*/
+            WriteASCIIShortString(value.ToString("o"));  //ISO 8601
         }
 
         /// <summary>
