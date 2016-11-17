@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\SimbiosiStreamReader.cs" />
     <Compile Include="Streams\SimbiosiStreamWriter.cs" />
     <Compile Include="Tags\MessageTag.cs" />
     <Compile Include="Tags\SubscribeTag.cs" />

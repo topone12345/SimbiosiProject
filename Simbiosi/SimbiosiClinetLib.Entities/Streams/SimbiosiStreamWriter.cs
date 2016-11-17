@@ -347,7 +347,7 @@ namespace SimbiosiClientLib.Entities.Streams
         {
             //Use string serialization instead of binary searlization on 96 bit plus sign and power for
             //Cross-language compliance reasons (for java usage, javascript usage, python usage, plsql and  etc. etc.)
-            Write(value.ToString(_decimalCultureInfo));
+            WriteASCIIShortString(value.ToString(_decimalCultureInfo));
         }
 
 
@@ -440,6 +440,7 @@ namespace SimbiosiClientLib.Entities.Streams
                 _asciiBuffer = new byte[4096];
             }
 
+            Write7BitEncodedInt(len);
             Encoding.ASCII.GetBytes(value, 0, value.Length, _asciiBuffer, 0);
             OutStream.Write(_asciiBuffer, 0, len);
         }
