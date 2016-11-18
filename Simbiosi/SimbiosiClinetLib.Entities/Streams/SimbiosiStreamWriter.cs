@@ -449,7 +449,7 @@ namespace SimbiosiClientLib.Entities.Streams
         /// Writes the date time.
         /// </summary>
         /// <param name="value">The value.</param>
-        public virtual void WriteDateTime(DateTime value)
+        public virtual void Write(DateTime value)
         {
             /*
             DateTime values:

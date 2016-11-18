@@ -162,7 +162,7 @@ namespace SimbiosiClientLib.Entities.Streams
             return (byte)b;
         }
 
-        protected int Read7BitEncodedInt()
+        public int Read7BitEncodedInt()
         {
             // Read out an Int32 7 bits at a time.  The high bit
             // of the byte when on means to continue reading more bytes.
