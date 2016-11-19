@@ -156,10 +156,12 @@ namespace SimbiosiClientLib.Entities.Messages
                 writer.Write((byte) Type);
                 writer.Write(Name);
             }
-            finally
+            catch(Exception)
             {
                 if(whenErrorReturnBack)
                     writer.ReturnToBackPoint();
+
+                throw;
             }
         }
 
@@ -178,10 +180,12 @@ namespace SimbiosiClientLib.Entities.Messages
                 Type = (FieldTypes) reader.ReadByte();
                 _name = reader.ReadString();
             }
-            finally
+            catch(Exception)
             {
                 if (whenErrorReturnBack)
                     reader.ReturnToBackPoint();
+
+                throw;
             }
         }
 
