@@ -2,7 +2,11 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
+using SimbiosiClientLib.Entities.Messages;
 using static System.String;
 
 namespace SimbiosiClientLib.Entities.Streams
@@ -23,6 +27,7 @@ namespace SimbiosiClientLib.Entities.Streams
         private readonly bool _mLeaveOpen;
         private byte[] _asciiBuffer;
         private readonly CultureInfo _decimalCultureInfo = new CultureInfo("en-US");
+        private long _backPoint = -1;
 
         public SimbiosiStreamReader(Stream input, Encoding encoding) : this(input, encoding, false) {
         }
@@ -446,5 +451,137 @@ namespace SimbiosiClientLib.Entities.Streams
             } while (bytesRead < numBytes);
         }
 
+
+        /// <summary>
+        /// Creates the back point.
+        /// </summary>
+        public void CreateBackPoint()
+        {
+            if (_mStream == null) throw new ObjectDisposedException("Reader is disposed");
+            _backPoint = BaseStream.Position;
+        }
+
+        /// <summary>
+        /// Returns to back point.
+        /// </summary>
+        public void ReturnToBackPoint()
+        {
+            if (_mStream == null) throw new ObjectDisposedException("Reader is disposed");
+            if (_backPoint != -1)
+            {
+                BaseStream.Position = _backPoint;
+                _backPoint = -1;
+            }
+        }
+
+
+        /// <summary>
+        /// Reads the specified entity to read.
+        /// </summary>
+        /// <param name="entityToRead">The entity to read.</param>
+        /// <param name="whenErrorReturn">if set to <c>true</c> [when error return].</param>
+        public void Read(ISimbiosiSerializable entityToRead, bool whenErrorReturn)
+        {
+            entityToRead.Read(this, whenErrorReturn);
+        }
+
+
+        /// <summary>
+        /// Reads the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="whenErrorReturn">if set to <c>true</c> [when error return].</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">
+        /// Type provideed \"" + type.Name +
+        ///                                             "\" does not implement ISImbiosiSerializable
+        /// or
+        /// Type provideed \"" + type.Name +
+        ///                                             "\" has not a public parameterless constructor
+        /// </exception>
+        public ISimbiosiSerializable Read(Type type, bool whenErrorReturn)
+        {
+
+            if (!type.IsAssignableFrom(typeof(ISimbiosiSerializable)))
+                throw new ArgumentException("Type provideed \"" + type.Name +
+                                            "\" does not implement ISImbiosiSerializable");
+
+            if (!(type.GetConstructor(Type.EmptyTypes) == null))
+                throw new ArgumentException("Type provideed \"" + type.Name +
+                                            "\" has not a public parameterless constructor");
+            var instance =  (ISimbiosiSerializable) Activator.CreateInstance(type);
+
+            Read(instance, whenErrorReturn);
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Reads the specified when error return. With generic methods performance is improved
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="whenErrorReturn">if set to <c>true</c> [when error return].</param>
+        /// <returns></returns>
+        public ISimbiosiSerializable Read<T>(bool whenErrorReturn) where T : ISimbiosiSerializable
+        {
+            ConstructorInfo ctor = typeof(T).GetConstructor(Type.EmptyTypes);
+            ObjectActivator<T> createdActivator = GetActivator<T>(ctor);
+            var instance = (ISimbiosiSerializable)createdActivator();
+
+            Read(instance, whenErrorReturn);
+            return instance;
+        }
+
+
+        internal delegate T ObjectActivator<T>(params object[] args);
+
+        internal static ObjectActivator<T> GetActivator<T>
+        (ConstructorInfo ctor)
+        {
+            Type type = ctor.DeclaringType;
+            ParameterInfo[] paramsInfo = ctor.GetParameters();
+
+            //create a single param of type object[]
+            ParameterExpression param =
+                Expression.Parameter(typeof(object[]), "args");
+
+            Expression[] argsExp =
+                new Expression[paramsInfo.Length];
+
+            //pick each arg from the params array 
+            //and create a typed expression of them
+            for (int i = 0; i < paramsInfo.Length; i++)
+            {
+                Expression index = Expression.Constant(i);
+                Type paramType = paramsInfo[i].ParameterType;
+
+                Expression paramAccessorExp =
+                    Expression.ArrayIndex(param, index);
+
+                Expression paramCastExp =
+                    Expression.Convert(paramAccessorExp, paramType);
+
+                argsExp[i] = paramCastExp;
+            }
+
+            //make a NewExpression that calls the
+            //ctor with the args we just created
+            NewExpression newExp = Expression.New(ctor, argsExp);
+
+            //create a lambda with the New
+            //Expression as body and our param object[] as arg
+            LambdaExpression lambda =
+                Expression.Lambda(typeof(ObjectActivator<T>), newExp, param);
+
+            //compile it
+            ObjectActivator<T> compiled = (ObjectActivator<T>)lambda.Compile();
+            return compiled;
+        }
+
+
+
+
     }
+
+  
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
+using SimbiosiClientLib.Entities.Messages;
 
 namespace SimbiosiClientLib.Entities.Streams
 {
@@ -34,6 +35,7 @@ namespace SimbiosiClientLib.Entities.Streams
 
         private byte[] _asciiBuffer;
         private readonly CultureInfo _decimalCultureInfo = new CultureInfo("en-US");
+        private long _backPoint = -1;
 
         protected SimbiosiStreamWriter()
         {
@@ -468,5 +470,46 @@ namespace SimbiosiClientLib.Entities.Streams
         /// The encoding.
         /// </value>
         public Encoding Encoding => _encoding;
+
+
+        /// <summary>
+        /// Creates the back point.
+        /// </summary>
+        public void CreateBackPoint()
+        {
+            _backPoint = BaseStream.Position;
+        }
+
+        /// <summary>
+        /// Returns to back point.
+        /// </summary>
+        public void ReturnToBackPoint()
+        {
+            if (_backPoint != -1)
+            {
+                BaseStream.Position = _backPoint;
+                _backPoint = -1;
+            }
+        }
+
+
+        /// <summary>
+        /// Writes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Write(ISimbiosiSerializable entity)
+        {
+            Write(entity, false);
+        }
+
+        /// <summary>
+        /// Writes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="whenErrorReturn">if set to <c>true</c> [when error return].</param>
+        public void Write(ISimbiosiSerializable entity, bool whenErrorReturn)
+        {
+            entity.Write(this, whenErrorReturn);
+        }
     }
 }

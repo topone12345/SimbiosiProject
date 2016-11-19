@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimbiosiClientLib.Entities.Messages;
 using SimbiosiClientLib.Entities.Streams;
 
 namespace SimbiosiClientLib.EntitiesTests
@@ -27,6 +28,7 @@ namespace SimbiosiClientLib.EntitiesTests
             var s7 = (double) 155214.23;
             var s8 = (decimal) 12121233568.12;
             var s9 = DateTime.Now;
+            var s10 = new FieldDefintion("FIELD_TEST", FieldTypes.Decimal);
             
             
             w.Write7BitEncodedInt(s0);
@@ -39,6 +41,7 @@ namespace SimbiosiClientLib.EntitiesTests
             w.Write(s7);
             w.Write(s8);
             w.Write(s9);
+            w.Write(s10);
             w.Flush();
 
             m.Position = 0;
@@ -53,6 +56,8 @@ namespace SimbiosiClientLib.EntitiesTests
             var l7 = r.ReadDouble();
             var l8 = r.ReadDecimal();
             var l9 = r.ReaDateTime();
+            var l10 = (FieldDefintion)r.Read<FieldDefintion>(false);
+
 
             Assert.IsTrue(
                 s0==l0&&
@@ -64,7 +69,8 @@ namespace SimbiosiClientLib.EntitiesTests
                 s6 == l6 &&
                 Math.Abs(s7 - l7) < double.Epsilon &&
                 s8 == l8 &&
-                s9 == l9 
+                s9 == l9  &&
+                s10 == l10
                 );
 
         }
